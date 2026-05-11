@@ -1,0 +1,79 @@
+import java.util.Scanner;
+
+public class Game {
+    private Board board;
+
+    public Game() {
+        board = new Board(4, 7);
+
+        Robot bb = new Robot(0, 0, "BB");
+        Robot aa = new Robot(2, 1, "AA");
+        Robot cc = new Robot(6, 3, "CC");
+
+        board.addRobot(bb);
+        board.addRobot(aa);
+        board.addRobot(cc);
+
+        board.addElement(new Goal(5, 2, "gg"));
+
+        board.addElement(new EastWall(2, 1));
+        board.addElement(new SouthWall(2, 1));
+        board.addElement(new SouthWall(3, 0));
+        board.addElement(new SouthWall(4, 0));
+    }
+
+    public void play() {
+        Scanner scanner = new Scanner(System.in);
+        int moves = 0;
+
+        while (!board.gameOver()) {
+            board.createDisplay().show();
+            System.out.println("Moves: " + moves);
+            System.out.print("Choose robot (AA, BB, CC), or q to quit: ");
+            String robotName = scanner.nextLine().trim().toUpperCase();
+
+            if (robotName.equals("Q")) {
+                break;
+            }
+
+            Robot chosen = null;
+            for (Robot robot : board.robots()) {
+                if (robot.getName().equalsIgnoreCase(robotName)) {
+                    chosen = robot;
+                    break;
+                }
+            }
+
+            if (chosen == null) {
+                System.out.println("No robot named " + robotName);
+                continue;
+            }
+
+            System.out.print("Direction (w/a/s/d): ");
+            String input = scanner.nextLine().trim().toLowerCase();
+            Direction direction = null;
+
+            if (input.equals("w")) direction = Direction.UP;
+            if (input.equals("s")) direction = Direction.DOWN;
+            if (input.equals("a")) direction = Direction.LEFT;
+            if (input.equals("d")) direction = Direction.RIGHT;
+
+            if (direction == null) {
+                System.out.println("Invalid direction.");
+                continue;
+            }
+
+            board.move(chosen, direction);
+            moves++;
+        }
+
+        board.createDisplay().show();
+        if (board.gameOver()) {
+            System.out.println("You won!");
+        }
+    }
+
+    public static void main(String[] args) {
+        new Game().play();
+    }
+}
