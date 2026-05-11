@@ -1,0 +1,26 @@
+public class SouthWall extends BoardElement {
+    private Position position;
+
+    public SouthWall(int x, int y) {
+        position = new Position(x, y);
+    }
+
+    @Override
+    public void renderOn(BoardDisplay display) {
+        display.setSouthWall(position.x, position.y);
+    }
+
+    @Override
+    public void interact(Robot robot, Direction direction) {
+    }
+
+    @Override
+    public Position getPosition() {
+        return position;
+    }
+
+    @Override
+    public boolean blocks(Direction direction) {
+        return direction == Direction.DOWN;
+    }
+}
