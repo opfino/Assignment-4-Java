@@ -1,0 +1,107 @@
+import java.util.ArrayList;
+import java.util.List;
+
+public class Board {
+    private int rows;
+    private int cols;
+    private List<Robot> robots = new ArrayList<>();
+    private List<BoardElement> elements = new ArrayList<>();
+
+    public Board(int rows, int cols) {
+        this.rows = rows;
+        this.cols = cols;
+    }
+
+    public void addRobot(Robot robot) {
+        robots.add(robot);
+    }
+
+    public void addElement(BoardElement element) {
+        elements.add(element);
+    }
+
+    public void move(Robot robot, Direction direction) {
+        while (!isBlocked(robot, direction)) {
+            robot.step(direction);
+        }
+    }
+
+    private boolean isBlocked(Robot robot, Direction direction) {
+        int x = robot.getPosition().x;
+        int y = robot.getPosition().y;
+
+        int nextX = x;
+        int nextY = y;
+        switch (direction) {
+            case UP:    nextY--; break;
+            case DOWN:  nextY++; break;
+            case LEFT:  nextX--; break;
+            case RIGHT: nextX++; break;
+        }
+
+        // outer walls / board frame
+        if (nextX < 0 || nextX >= cols || nextY < 0 || nextY >= rows) {
+            return true;
+        }
+
+        // another robot in the next cell
+        for (Robot other : robots) {
+            if (other != robot && other.getPosition().x == nextX && other.getPosition().y == nextY) {
+                return true;
+            }
+        }
+
+        // walls on current cell or neighboring cell
+        for (BoardElement element : elements) {
+            Position p = element.getPosition();
+
+            if (direction == Direction.RIGHT && p.x == x && p.y == y && element instanceof EastWall) {
+                return true;
+            }
+            if (direction == Direction.LEFT && p.x == x - 1 && p.y == y && element instanceof EastWall) {
+                return true;
+            }
+            if (direction == Direction.DOWN && p.x == x && p.y == y && element instanceof SouthWall) {
+                return true;
+            }
+            if (direction == Direction.UP && p.x == x && p.y == y - 1 && element instanceof SouthWall) {
+                return true;
+            }
+
+            
+            if (p.x == x && p.y == y && element.blocks(direction)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public BoardDisplay createDisplay() {
+        BoardDisplay display = new BoardDisplay(rows, cols);
+        for (BoardElement element : elements) {
+            element.renderOn(display);
+        }
+        for (Robot robot : robots) {
+            robot.renderOn(display);
+        }
+        return display;
+    }
+
+    public boolean gameOver() {
+        for (BoardElement element : elements) {
+            if (element.gameOver(robots)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public List<BoardElement> elements() {
+        return elements;
+    }
+
+    public List<Robot> robots() {
+        return robots;
+    }
+}
