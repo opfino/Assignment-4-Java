@@ -21,71 +21,75 @@ public class Board {
     }
 
     public void move(Robot robot, Direction direction) {
-        while (!isBlocked(robot, direction)) {
+        while (canMove(robot, direction)) {
             robot.step(direction);
         }
     }
 
-    private boolean isBlocked(Robot robot, Direction direction) {
+    private boolean canMove(Robot robot, Direction direction) {
         int x = robot.getPosition().x;
         int y = robot.getPosition().y;
-
         int nextX = x;
         int nextY = y;
+
         switch (direction) {
-            case UP:    nextY--; break;
-            case DOWN:  nextY++; break;
-            case LEFT:  nextX--; break;
-            case RIGHT: nextX++; break;
+            case UP:
+                nextY--;
+                break;
+            case DOWN:
+                nextY++;
+                break;
+            case LEFT:
+                nextX--;
+                break;
+            case RIGHT:
+                nextX++;
+                break;
         }
 
-        // outer walls / board frame
         if (nextX < 0 || nextX >= cols || nextY < 0 || nextY >= rows) {
-            return true;
+            return false;
         }
 
-        // another robot in the next cell
         for (Robot other : robots) {
             if (other != robot && other.getPosition().x == nextX && other.getPosition().y == nextY) {
-                return true;
+                return false;
             }
         }
 
-        // walls on current cell or neighboring cell
+        return !hasWallBetween(x, y, direction);
+    }
+
+    private boolean hasWallBetween(int x, int y, Direction direction) {
         for (BoardElement element : elements) {
             Position p = element.getPosition();
 
-            if (direction == Direction.RIGHT && p.x == x && p.y == y && element instanceof EastWall) {
-                return true;
-            }
-            if (direction == Direction.LEFT && p.x == x - 1 && p.y == y && element instanceof EastWall) {
-                return true;
-            }
-            if (direction == Direction.DOWN && p.x == x && p.y == y && element instanceof SouthWall) {
-                return true;
-            }
-            if (direction == Direction.UP && p.x == x && p.y == y - 1 && element instanceof SouthWall) {
-                return true;
+            if (direction == Direction.RIGHT) {
+                if (element instanceof EastWall && p.x == x && p.y == y) {
+                    return true;
+                }
             }
 
-            
-            if (p.x == x && p.y == y && element.blocks(direction)) {
-                return true;
+            if (direction == Direction.LEFT) {
+                if (element instanceof EastWall && p.x == x - 1 && p.y == y) {
+                    return true;
+                }
+            }
+
+            if (direction == Direction.DOWN) {
+                if (element instanceof SouthWall && p.x == x && p.y == y) {
+                    return true;
+                }
+            }
+
+            if (direction == Direction.UP) {
+                if (element instanceof SouthWall && p.x == x && p.y == y - 1) {
+                    return true;
+                }
             }
         }
 
         return false;
-    }
-
-    public BoardDisplay createDisplay() {
-        BoardDisplay display = new BoardDisplay(rows, cols);
-        for (BoardElement element : elements) {
-            element.renderOn(display);
-        }
-        for (Robot robot : robots) {
-            robot.renderOn(display);
-        }
-        return display;
     }
 
     public boolean gameOver() {
@@ -95,6 +99,29 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public BoardDisplay createDisplay() {
+        BoardDisplay display = new BoardDisplay(rows, cols);
+
+        // Outer right and bottom walls are represented as east/south walls.
+        for (int y = 0; y < rows; y++) {
+            display.setEastWall(cols - 1, y);
+        }
+
+        for (int x = 0; x < cols; x++) {
+            display.setSouthWall(x, rows - 1);
+        }
+
+        for (BoardElement element : elements) {
+            element.renderOn(display);
+        }
+
+        for (Robot robot : robots) {
+            robot.renderOn(display);
+        }
+
+        return display;
     }
 
     public List<BoardElement> elements() {
