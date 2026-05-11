@@ -8,15 +8,20 @@ public class BoardDisplay {
     public BoardDisplay(int rows, int cols) {
         this.rows = rows;
         this.cols = cols;
+
         grid = new String[rows][cols];
         southWalls = new boolean[rows][cols];
         eastWalls = new boolean[rows][cols];
-        northWalls = new boolean[rows][cols];
-        westWalls = new boolean[rows][cols];
+
+        for (int y = 0; y < rows; y++) {
+            for (int x = 0; x < cols; x++) {
+                grid[y][x] = "  ";
+            }
+        }
     }
 
     public void set(int x, int y, String content) {
-        if (isInside(x, y)) {
+        if (x >= 0 && x < cols && y >= 0 && y < rows) {
             if (content.length() > 2) {
                 content = content.substring(0, 2);
             }
@@ -25,45 +30,39 @@ public class BoardDisplay {
     }
 
     public void setSouthWall(int x, int y) {
-        if (isInside(x, y)) {
+        if (x >= 0 && x < cols && y >= 0 && y < rows) {
             southWalls[y][x] = true;
         }
     }
 
     public void setEastWall(int x, int y) {
-        if (isInside(x, y)) {
+        if (x >= 0 && x < cols && y >= 0 && y < rows) {
             eastWalls[y][x] = true;
         }
     }
 
-    private boolean isInside(int x, int y) {
-        return x >= 0 && x < cols && y >= 0 && y < rows;
-    }
-
     public void show() {
-        // top outer wall
+        // Top outer wall
         for (int x = 0; x < cols; x++) {
             System.out.print("+--");
         }
         System.out.println("+");
 
         for (int y = 0; y < rows; y++) {
-            // content row
-            System.out.print("|"); // left outer wall
-            for (int x = 0; x < cols; x++) {
-                String content = grid[y][x] == null ? "  " : grid[y][x];
-                System.out.print(content);
+            // Left outer wall
+            System.out.print("|");
 
-                boolean hasEastWall = eastWalls[y][x] || x == cols - 1;
+            // Cell contents and east walls
+            for (int x = 0; x < cols; x++) {
+                System.out.print(grid[y][x]);
+                System.out.print(eastWalls[y][x] ? "|" : " ");
             }
             System.out.println();
 
-            // horizontal wall row
+            // South walls
             for (int x = 0; x < cols; x++) {
                 System.out.print("+");
-                boolean hasSouthWall = southWalls[y][x] || y == rows - 1;
-                boolean hasNorthWallOfNextRow = y + 1 < rows && northWalls[y + 1][x];
-                System.out.print((hasSouthWall || hasNorthWallOfNextRow) ? "--" : "  ");
+                System.out.print(southWalls[y][x] ? "--" : "  ");
             }
             System.out.println("+");
         }
