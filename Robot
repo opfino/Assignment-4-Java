@@ -1,0 +1,50 @@
+import java.util.List;
+
+public class Robot extends BoardElement {
+    private Position position;
+    private String name;
+
+    public Robot(int x, int y, String name) {
+        position = new Position(x, y);
+        this.name = name;
+    }
+
+    public Position getPosition() {
+        return position;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void step(Direction direction) {
+        switch (direction) {
+            case UP:
+                position = new Position(position.x, position.y - 1);
+                break;
+            case DOWN:
+                position = new Position(position.x, position.y + 1);
+                break;
+            case LEFT:
+                position = new Position(position.x - 1, position.y);
+                break;
+            case RIGHT:
+                position = new Position(position.x + 1, position.y);
+                break;
+        }
+    }
+
+    @Override
+    public void renderOn(BoardDisplay display) {
+        display.set(position.x, position.y, name);
+    }
+
+    @Override
+    public void interact(Robot robot, Direction direction) {
+    }
+
+    @Override
+    public boolean gameOver(List<Robot> robots) {
+        return false;
+    }
+}
