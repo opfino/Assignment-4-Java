@@ -1,0 +1,35 @@
+import java.util.List;
+
+public class Goal extends BoardElement {
+    private Position position;
+    private String name;
+
+    public Goal(int x, int y, String name) {
+        position = new Position(x, y);
+        this.name = name;
+    }
+
+    @Override
+    public Position getPosition() {
+        return position;
+    }
+
+    @Override
+    public void renderOn(BoardDisplay display) {
+        display.set(position.x, position.y, name);
+    }
+
+    @Override
+    public void interact(Robot robot, Direction direction) {
+    }
+
+    @Override
+    public boolean gameOver(List<Robot> robots) {
+        for (Robot robot : robots) {
+            if (robot.getPosition().x == position.x && robot.getPosition().y == position.y) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
